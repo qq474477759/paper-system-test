@@ -1,7 +1,28 @@
 
+function fetchPapers() {
+    fetch('http://8.215.43.250:5000/api/papers')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to fetch papers');
+            }
+            return response.json();
+        })
+        .then(papers => {
+            // Render papers dynamically
+            renderPapers(papers);
+        })
+        .catch(error => {
+            console.error('Error fetching papers:', error);
+            alert('Unable to load papers, please try again later');
+        });
+}
+document.addEventListener('DOMContentLoaded', function () {
+    fetchPapers();
+});
+
 // Open the modal and load paper data
 function openModal(paperId) {
-
+    // 使用后端完整 URL 来请求数据
     fetch(`http://8.215.43.250:5000/paper_info/${paperId}`)
         .then(response => {
             if (!response.ok) {
