@@ -1,7 +1,7 @@
 
 // Open the modal and load paper data
 function openModal(paperId) {
-    // 使用后端完整 URL 来请求数据
+
     fetch(`http://8.215.43.250:5000/paper_info/${paperId}`)
         .then(response => {
             if (!response.ok) {
