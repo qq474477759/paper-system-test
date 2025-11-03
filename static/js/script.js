@@ -16,6 +16,8 @@ function fetchPapers() {
             alert('Unable to load papers, please try again later');
         });
 }
+
+
 document.addEventListener('DOMContentLoaded', function () {
     fetchPapers();
 });
