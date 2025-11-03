@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Microgestures Trove</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <!-- 修改静态资源路径 -->
+    <link rel="stylesheet" href="https://your-username.github.io/your-repository-name/css/style.css">
 </head>
 <body>
     <!-- Main Header -->
@@ -25,35 +26,33 @@
                 <!-- Search Box -->
                 <div class="input-group">
                     <label for="query" class="input-label">Paper Title</label>
-                    <input type="text" name="query" id="query" placeholder="Enter paper title to search..." 
-                           value="{{ request.args.get('query', '') }}" class="search-input">
+                    <input type="text" name="query" id="query" placeholder="Enter paper title to search..." class="search-input">
                 </div>
                 <div class="input-group">
                     <label for="author" class="input-label">Author</label>
-                    <input type="text" name="author" id="author" value="{{ request.args.get('author', '') }}" placeholder="Enter author's name" class="filter-input">
+                    <input type="text" name="author" id="author" placeholder="Enter author's name" class="filter-input">
                 </div>
                 
                 <div class="input-group">
                     <label for="year" class="input-label">Year</label>
-                    <input type="number" name="year" id="year" value="{{ request.args.get('year', '') }}" placeholder="For example: 2020" class="filter-input">
+                    <input type="number" name="year" id="year" placeholder="For example: 2020" class="filter-input">
                 </div>
 
                 <!-- Sort and Order -->
                 <div class="sort-container">
-                   
                     <div class="input-group">
                         <label for="sort_by" class="input-label">Sort By</label>
                         <select name="sort_by" id="sort_by" class="sort-select">
-                            <option value="year" {% if request.args.get('sort_by') == 'year' %}selected{% endif %}>By Year</option>
-                            <option value="title" {% if request.args.get('sort_by') == 'title' %}selected{% endif %}>By Title</option>
-                            <option value="category" {% if request.args.get('sort_by') == 'category' %}selected{% endif %}>By Category</option>
+                            <option value="year">By Year</option>
+                            <option value="title">By Title</option>
+                            <option value="category">By Category</option>
                         </select>
                     </div>
                     <div class="input-group">
                         <label for="order" class="input-label">Sort Order</label>
                         <select name="order" id="order" class="order-select">
-                            <option value="asc" {% if request.args.get('order') == 'asc' %}selected{% endif %}>Ascending</option>
-                            <option value="desc" {% if request.args.get('order') == 'desc' %}selected{% endif %}>Descending</option>
+                            <option value="asc">Ascending</option>
+                            <option value="desc">Descending</option>
                         </select>
                     </div>
                 </div>
@@ -63,366 +62,184 @@
             </div>
         </form>
     </section>
+
     <div id="papers-count">
         Showing <span id="papers-count-number">0</span> papers
     </div>
- <!-- Main Content Section: Papers List on the Left, Filter Panel on the Right -->
-<div class="main-content">
-  
-    <!-- Left side: Papers List -->
-    <section class="papers-list">
-        {% for paper in papers %}
-            <div class="paper-card">
-                <img src="{{ url_for('serve_image', filename=paper.preview_image) }}" alt="Preview Image">
-                <div class="paper-details">
-                    <h3 onclick="openModal({{ paper.id }})">{{ paper.title }}</h3>
-                    <p>Category: {{ paper.category }} | Year: {{ paper.year }}</p>
+
+    <!-- Main Content Section: Papers List on the Left, Filter Panel on the Right -->
+    <div class="main-content">
+        <!-- Left side: Papers List -->
+        <section class="papers-list" id="papers-list">
+            <!-- Papers will be dynamically added here using JavaScript -->
+        </section>
+
+        <!-- Right side: Filter Panel -->
+        <section id="feature-filters">
+            <h2>Filters</h2>
+            <label for="select-all-all-categories">
+                <input type="checkbox" id="select-all-all-categories" />
+                Select All Features
+            </label>
+            <div id="feature-categories"></div> <!-- Container for dynamically loaded categories and features -->
+        </section>
+    </div>
+
+    <!-- Modal for Paper Details -->
+    <div id="paperModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="paperTitle"></h2>
+            </div>
+            <div class="modal-body">
+                <div class="left-content">
+                    <img id="paperPreviewImage" src="" alt="Preview Image" class="preview-image">
+                    <div class="info-item">
+                        <strong>DOI:</strong>
+                        <a id="doiLink" href="" target="_blank">
+                            <span id="doiLinkText"></span>
+                        </a>
+                    </div>
+                    <div class="info-item">
+                        <strong>Journal/Conference:</strong> <span id="journalConferenceName"></span>
+                    </div>
+                    <div class="info-item">
+                        <strong>Year:</strong> <span id="paperYear"></span>
+                    </div>
+                    <div class="info-item">
+                        <strong>Category:</strong> <span id="paperCategory"></span>
+                    </div>
+
+                    <div id="paperFeatures" class="info-item">
+                        <strong>Features:</strong>
+                        <div id="featuresContainer"></div> 
+                    </div>
                 </div>
             </div>
-        {% endfor %}
-    </section>
-
-    <!-- Right side: Filter Panel -->
-    <section id="feature-filters">
-        <h2>Filters</h2>
-        <label for="select-all-all-categories">
-            <input type="checkbox" id="select-all-all-categories" />
-            Select All Features
-        </label>
-        <div id="feature-categories"></div> <!-- Container for dynamically loaded categories and features -->
-    </section>
-</div>
-
-<div id="paperModal" class="modal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h2 id="paperTitle"></h2>
-        </div>
-        <div class="modal-body">
-            <div class="left-content">
-                <img id="paperPreviewImage" src="" alt="Preview Image" class="preview-image">
-     <!-- New Info: DOI and Journal/Conference -->
-     <div class="info-item">
-        <strong>DOI:</strong> 
-        <a id="doiLink" href="" target="_blank">
-            <span id="doiLinkText"></span>  <!-- This is where DOI will be displayed -->
-        </a>
-    </div>
-    <div class="info-item">
-        <strong>Journal/Conference:</strong> <span id="journalConferenceName"></span>
-    </div>
-                <div class="info-item">
-                    <strong>Year:</strong> <span id="paperYear"></span>
-                </div>
-                <div class="info-item">
-                    <strong>Category:</strong> <span id="paperCategory"></span>
-                </div>
-
-                <div id="paperFeatures" class="info-item">
-                    <strong>Features:</strong>
-                    <div id="featuresContainer"></div> 
-                </div>
-
-           
+            <div class="modal-footer">
+                <button class="button" onclick="closeModal()">Close</button>
             </div>
         </div>
-        <div class="modal-footer">
-            <button class="button" onclick="closeModal()">Close</button>
-        </div>
     </div>
-</div>
 
-
-    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <!-- JS File -->
+    <script src="https://your-username.github.io/your-repository-name/js/script.js"></script>
     <script>
-  
-        // Safely parse the papers data using Jinja2, ensuring it's valid JSON
-        var allPapers = {{ papers | tojson | safe }};  // Pass papers data from Flask to JavaScript as a JSON object
+        // 这里需要手动传递数据，Flask 后端会将数据传递给 JavaScript
+        var allPapers = [];  // 这个数据应该从 Flask 后端动态传递给前端
         console.log(allPapers)
+
         const papersCountElement = document.getElementById('papers-count-number');
-    papersCountElement.textContent = allPapers.length; 
-        let featureCategories = []; 
-        let featureCategoryMap = {};  // Map feature to its category
-        // Call loadFeatureCategories after papers data is available
-        loadFeatureCategories();
+        papersCountElement.textContent = allPapers.length;
 
+        // 渲染论文数据
+        function renderPapers() {
+            const papersList = document.getElementById('papers-list');
+            papersList.innerHTML = '';  // 清空当前内容
 
-// Fetch feature categories and features
-function loadFeatureCategories() {
-    fetch('/api/feature_categories_and_features')
-        .then(response => response.json())
-        .then(data => {
-            featureCategories = data.categories;
-            // Build a map of feature names to categories
-            featureCategories.forEach(category => {
-                category.features.forEach(feature => {
-                    featureCategoryMap[feature.name] = category.name; // Map feature name to category
+            allPapers.forEach(paper => {
+                const paperElement = document.createElement('div');
+                paperElement.classList.add('paper-card');
+                paperElement.innerHTML = `
+                    <img src="http://8.215.43.250:5000/images/${paper.preview_image}" alt="Preview Image">
+                    <div class="paper-details">
+                        <h3 onclick="openModal(${paper.id})">${paper.title}</h3>
+                        <p>Category: ${paper.category} | Year: ${paper.year}</p>
+                    </div>
+                `;
+                papersList.appendChild(paperElement);
+            });
+        }
+
+        // 在这里加载论文数据
+        renderPapers();
+
+        // Open the modal and load paper data
+        function openModal(paperId) {
+            fetch(`http://8.215.43.250:5000/paper_info/${paperId}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to load data');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Populate modal with data
+                    document.getElementById('paperTitle').innerText = data.title;
+                    document.getElementById('paperYear').innerText = data.year || 'Unknown Year';
+                    document.getElementById('paperCategory').innerText = data.category || 'Unknown Category';
+                    document.getElementById('paperPreviewImage').src = `http://8.215.43.250:5000/images/${data.preview_image}`;
+
+                    // New fields: Journal/Conference Name and DOI
+                    document.getElementById('journalConferenceName').innerText = data.journal_conference_name || 'Unknown';
+                    const doiLink = document.getElementById('doiLink');
+                    if (data.doi) {
+                        doiLink.href = `https://doi.org/${data.doi}`;
+                        document.getElementById('doiLinkText').innerText = data.doi;
+                    } else {
+                        doiLink.href = '#';
+                        document.getElementById('doiLinkText').innerText = 'N/A';
+                    }
+
+                    // Features section
+                    const featuresContainer = document.getElementById('featuresContainer');
+                    featuresContainer.innerHTML = '';  // Clear previous content
+
+                    let displayedCategories = [];
+                    data.features.forEach(feature => {
+                        const featureCategory = featureCategoryMap[feature];  // Get the category of the feature
+
+                        if (featureCategory && !displayedCategories.includes(featureCategory)) {
+                            const categoryDiv = document.createElement('div');
+                            categoryDiv.classList.add('feature-category');
+
+                            const categoryTitle = document.createElement('h4');
+                            categoryTitle.textContent = featureCategory;  // Display the category
+
+                            categoryDiv.appendChild(categoryTitle);
+                            featuresContainer.appendChild(categoryDiv);
+
+                            displayedCategories.push(featureCategory);
+
+                            featuresContainer.appendChild(document.createElement('br'));  // Empty line between category and features
+                        }
+
+                        const featureRow = document.createElement('div');
+                        featureRow.classList.add('feature-row');
+
+                        const label = document.createElement('div');
+                        label.classList.add('feature-label');
+                        label.textContent = feature;  // Display the feature
+
+                        const value = document.createElement('div');
+                        value.classList.add('feature-value');
+                        featureRow.appendChild(label);
+
+                        featuresContainer.appendChild(featureRow);
+                    });
+
+                    const modal = document.getElementById('paperModal');
+                    modal.style.display = 'block'; // Ensure it is visible
+                    setTimeout(() => {
+                        modal.classList.add('show');
+                    }, 50);
+                    document.body.classList.add('modal-open');
+                })
+                .catch(error => {
+                    console.error('Failed to load paper:', error);
+                    alert('Unable to load paper details, please try again later'); // Error message
                 });
-            });
-       
-            let uniqueFeatures = getUniqueFeaturesFromPapers();
-       
-            renderFeatureFilters(featureCategories, uniqueFeatures);
-        })
-        .catch(error => {
-            console.error('Error fetching feature categories:', error);
-        });
-}
-
- // Get unique features from all papers
- function getUniqueFeaturesFromPapers() {
-        let featureSet = new Set();
-
-        // Loop through all papers and collect features
-        allPapers.forEach(paper => {
-            paper.features.forEach(feature => {
-                featureSet.add(feature);  // Add feature to the set (automatically handles uniqueness)
-            });
-        });
-
-        return Array.from(featureSet);  // Convert set back to array
-    }
-
-    
-    let selectedCategory = '';  // Track selected category
-    // Render the feature filters dynamically based on the unique features found in all papers
-function renderFeatureFilters(categories, uniqueFeatures) {
-    const featureContainer = document.getElementById('feature-categories');
-    featureContainer.innerHTML = '';  // Clear any existing content
-
-    categories.forEach(category => {
-        const categoryElement = document.createElement('div');
-        categoryElement.classList.add('category');
-
-        const categoryTitle = document.createElement('h3');
-        categoryTitle.textContent = category.name;
-        const lineBreak = document.createElement('br');
-
-        // Create "Select All" checkbox for the entire category
-        const categorySelectAll = document.createElement('input');
-        categorySelectAll.type = 'checkbox';
-        categorySelectAll.classList.add('category-select-all');
-        categorySelectAll.id = `select-all-${category.name}`;
-
-        const categorySelectAllLabel = document.createElement('label');
-        categorySelectAllLabel.setAttribute('for', `select-all-${category.name}`);
-        categorySelectAllLabel.textContent = 'Select All in this category';
-categoryTitle.appendChild(lineBreak);
-        categoryTitle.appendChild(categorySelectAll);
-        categoryTitle.appendChild(categorySelectAllLabel);
-
-        const featureList = document.createElement('ul');
-        featureList.classList.add('feature-list');
-
-        // Only show features that belong to the selected category
-        if (selectedCategory === '' || selectedCategory === category.name) {
-            category.features.forEach(feature => {
-                if (uniqueFeatures.includes(feature.name)) {
-                    const featureItem = document.createElement('li');
-                    const featureCheckbox = document.createElement('input');
-                    featureCheckbox.type = 'checkbox';
-                    featureCheckbox.value = feature.name;
-                    featureCheckbox.id = `feature-${feature.name}`;
-                    featureCheckbox.classList.add('feature-checkbox');
-
-                    const featureLabel = document.createElement('label');
-                    featureLabel.setAttribute('for', `feature-${feature.name}`);
-                    featureLabel.textContent = feature.name;
-
-                    featureItem.appendChild(featureCheckbox);
-                    featureItem.appendChild(featureLabel);
-                    featureList.appendChild(featureItem);
-                }
-            });
         }
 
-        categoryElement.appendChild(categoryTitle);
-        categoryElement.appendChild(featureList);
-        featureContainer.appendChild(categoryElement);
-
-        // Add event listener for "Select All" in category
-        categorySelectAll.addEventListener('change', function () {
-            const checkboxes = categoryElement.querySelectorAll('.feature-checkbox');
-            checkboxes.forEach(checkbox => {
-                checkbox.checked = categorySelectAll.checked;
-            });
-            handleFilterChange();  // Trigger the filtering after the changes
-            updateGlobalSelectAll(); // Update the global select-all state
-        });
-
-        // Add event listener for individual feature checkboxes
-        categoryElement.querySelectorAll('.feature-checkbox').forEach(checkbox => {
-            checkbox.addEventListener('change', function () {
-                updateCategorySelectAll(categoryElement, categorySelectAll);
-                updateGlobalSelectAll();  // Update global "Select All" state
-                handleFilterChange();  // Trigger the filtering after the changes
-            });
-        });
-    });
-
-    updateGlobalSelectAll();
-}
-
-
-
-
-function getUniqueFeaturesFromPapers() {
-    let featureSet = new Set();
-
-    // Loop through all papers and collect features
-    allPapers.forEach(paper => {
-        paper.features.forEach(feature => {
-            featureSet.add(feature);  // Add feature to the set (automatically handles uniqueness)
-        });
-    });
-    return Array.from(featureSet);  // Convert set back to array
-}
-
-
-document.getElementById('select-all-all-categories').addEventListener('change', function() {
-    // Get the state of the global "Select All" checkbox
-    const isChecked = this.checked;
-
-    // Select all categories' "Select All" checkboxes and set their state
-    const categorySelectAlls = document.querySelectorAll('.category-select-all');
-    categorySelectAlls.forEach(categorySelectAll => {
-        categorySelectAll.checked = isChecked;  // Set the state of all "Select All" checkboxes
-    });
-
-    // Trigger the category "Select All" change event to update the individual feature checkboxes
-    categorySelectAlls.forEach(categorySelectAll => {
-        const categoryElement = categorySelectAll.closest('.category');  // Get the category element
-        const checkboxes = categoryElement.querySelectorAll('.feature-checkbox');
-        checkboxes.forEach(checkbox => {
-            checkbox.checked = isChecked;  // Match the category select-all state
-        });
-    });
-
-    handleFilterChange();  // Trigger the filtering after the changes
-});
-
-// Get selected features from the checkboxes
-function getSelectedFeatures() {
-    const selectedFeatures = [];
-    document.querySelectorAll('.feature-checkbox:checked').forEach(checkbox => {
-        selectedFeatures.push(checkbox.value);
-    });
-    return selectedFeatures;
-}
-
-function handleFilterChange() {
-    const selectedFeatures = getSelectedFeatures();  // Get selected features
-    const allFeatures = document.querySelectorAll('.feature-checkbox').length;  // Get total number of features
-
-if (selectedFeatures.length === 0 || selectedFeatures.length === allFeatures) {
-    // If no feature is selected, or all features are selected, show all papers
-    renderFilteredPapers(allPapers);
-    return;
-}
-
-
-    // Separate features by category
-    let selectedCategories = {}; // Stores selected features per category
-    selectedFeatures.forEach(feature => {
-        const featureCategory = getFeatureCategory(feature);  // Get the category for this feature
-        if (!selectedCategories[featureCategory]) {
-            selectedCategories[featureCategory] = [];
+        // Close the modal
+        function closeModal() {
+            const modal = document.getElementById('paperModal');
+            modal.classList.remove('show'); // Remove the "show" class to trigger exit animation
+            setTimeout(() => {
+                modal.style.display = 'none';
+                document.body.classList.remove('modal-open'); // Restore scrolling
+            }, 400); // Matches CSS transition time
         }
-        selectedCategories[featureCategory].push(feature);
-    });
-
-    const filteredPapers = allPapers.filter(paper => {
-        return Object.keys(selectedCategories).every(category => {
-            // Get the features of the paper that belong to the selected category
-            const paperFeaturesInCategory = paper.features.filter(f => getFeatureCategory(f) === category);
-            const selectedCategoryFeatures = selectedCategories[category];
-
-            // If multiple features are selected in the category, use `some` (OR logic)
-            if (selectedCategoryFeatures.length > 1) {
-                return paperFeaturesInCategory.some(f => selectedCategoryFeatures.includes(f));
-            }
-            // If only one feature is selected in the category, check if it exists in paper features
-            return paperFeaturesInCategory.includes(selectedCategoryFeatures[0]);
-        });
-    });
-
-    renderFilteredPapers(filteredPapers);  // Update paper list based on filter
-}
-
-
-
-function getFeatureCategory(feature) {
-    return featureCategoryMap[feature];  // Return category based on feature name
-}
-
-// Update the "Select All" checkbox of a category based on individual selections
-function updateCategorySelectAll(categoryElement, categorySelectAll) {
-    const checkboxes = categoryElement.querySelectorAll('.feature-checkbox');
-    const checkedCheckboxes = categoryElement.querySelectorAll('.feature-checkbox:checked');
-
-    // If no checkboxes are checked, set the category "Select All" checkbox to false
-    if (checkedCheckboxes.length === 0) {
-        categorySelectAll.checked = false;
-        categorySelectAll.indeterminate = false;  // No checked items, so not indeterminate
-    } 
-    // If all checkboxes in this category are checked, set the category "Select All" checkbox to true
-    else if (checkedCheckboxes.length === checkboxes.length) {
-        categorySelectAll.checked = true;
-        categorySelectAll.indeterminate = false;  // All selected, no indeterminate state
-    }
-    // If some but not all checkboxes are checked, set the "Select All" to indeterminate state
-    else {
-        categorySelectAll.checked = false;
-        categorySelectAll.indeterminate = true;  // Partial selection, set as indeterminate
-    }
-}
-
-// Update the global "Select All" checkbox state based on all categories' select-all states
-function updateGlobalSelectAll() {
-    const categorySelectAlls = document.querySelectorAll('.category-select-all');
-    const checkedCategorySelectAlls = document.querySelectorAll('.category-select-all:checked');
-    
-    const globalSelectAll = document.getElementById('select-all-all-categories');
-    
-    // If all category "Select All" checkboxes are checked, set the global "Select All" checkbox to true
-    globalSelectAll.checked = categorySelectAlls.length === checkedCategorySelectAlls.length;
-
-    // If at least one category "Select All" checkbox is unchecked, make the global "Select All" checkbox indeterminate
-    globalSelectAll.indeterminate = checkedCategorySelectAlls.length > 0 && checkedCategorySelectAlls.length < categorySelectAlls.length;
-}
-
-
-
-// Render the filtered papers (based on selected features)
-function renderFilteredPapers(papers) {
-    const papersList = document.getElementsByClassName('papers-list')[0];  // Access the first element in the collection
-    papersList.innerHTML = '';  // Clear existing papers
-    const papersCountElement = document.getElementById('papers-count-number');
-    papersCountElement.textContent = papers.length;  // Update the count with the number of papers
-
-    papers.forEach(paper => {
-        // Create a paper card for each paper
-        const paperElement = document.createElement('div');
-        paperElement.classList.add('paper-card');
-        paperElement.innerHTML = `
-            <img src="/images/${paper.preview_image}" alt="Preview Image">
-            <div class="paper-details">
-                <h3 onclick="openModal(${paper.id})">${paper.title}</h3>
-                <p>Category: ${paper.category} | Year: ${paper.year}</p>
-            </div>
-        `;
-        papersList.appendChild(paperElement);
-    });
-}
-
- // Function to handle Select All / Deselect All within a category
- function selectAllFeaturesInCategory(categoryName, select) {
-        const checkboxes = document.querySelectorAll(`#feature-categories .category:has(h3:contains('${categoryName}')) .feature-checkbox`);
-        checkboxes.forEach(checkbox => {
-            checkbox.checked = select;
-        });
-        handleFilterChange();  // Trigger the filtering after the changes
-    }
     </script>
 </body>
 </html>
