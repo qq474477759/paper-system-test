@@ -1,8 +1,8 @@
 
 // Open the modal and load paper data
 function openModal(paperId) {
-    // Make a request to get the paper data
-    fetch(`/paper_info/${paperId}`)
+    // 使用后端完整 URL 来请求数据
+    fetch(`http://8.215.43.250:5000/paper_info/${paperId}`)
         .then(response => {
             if (!response.ok) {
                 throw new Error('Failed to load data');
@@ -14,7 +14,7 @@ function openModal(paperId) {
             document.getElementById('paperTitle').innerText = data.title;
             document.getElementById('paperYear').innerText = data.year || 'Unknown Year';
             document.getElementById('paperCategory').innerText = data.category || 'Unknown Category';
-            document.getElementById('paperPreviewImage').src = `/images/${data.preview_image}`;
+            document.getElementById('paperPreviewImage').src = `http://8.215.43.250:5000/images/${data.preview_image}`;
 
             // New fields: Journal/Conference Name and DOI
             document.getElementById('journalConferenceName').innerText = data.journal_conference_name || 'Unknown';
@@ -32,53 +32,43 @@ function openModal(paperId) {
             featuresContainer.innerHTML = '';  // Clear previous content
 
             let displayedCategories = [];
-// Iterate through features and group them by category
-data.features.forEach(feature => {
-    const featureCategory = featureCategoryMap[feature];  // Get the category of the feature
+            data.features.forEach(feature => {
+                const featureCategory = featureCategoryMap[feature];  // Get the category of the feature
 
-    // If we haven't displayed this category yet, display it
-    if (featureCategory && !displayedCategories.includes(featureCategory)) {
-        // Create the category header (only once)
-        const categoryDiv = document.createElement('div');
-        categoryDiv.classList.add('feature-category');
+                if (featureCategory && !displayedCategories.includes(featureCategory)) {
+                    const categoryDiv = document.createElement('div');
+                    categoryDiv.classList.add('feature-category');
 
-        const categoryTitle = document.createElement('h4');
-        categoryTitle.textContent = featureCategory;  // Display the category
+                    const categoryTitle = document.createElement('h4');
+                    categoryTitle.textContent = featureCategory;  // Display the category
 
-        categoryDiv.appendChild(categoryTitle);
-        featuresContainer.appendChild(categoryDiv);
+                    categoryDiv.appendChild(categoryTitle);
+                    featuresContainer.appendChild(categoryDiv);
 
-        // Add the category to the list of displayed categories
-        displayedCategories.push(featureCategory);
+                    displayedCategories.push(featureCategory);
 
-        // Add a line break (empty space) after the category title (before listing features)
-        featuresContainer.appendChild(document.createElement('br'));  // Empty line between category and features
-    }
+                    featuresContainer.appendChild(document.createElement('br'));  // Empty line between category and features
+                }
 
-    // Now add the feature under the respective category
-    const featureRow = document.createElement('div');
-    featureRow.classList.add('feature-row');
+                const featureRow = document.createElement('div');
+                featureRow.classList.add('feature-row');
 
-    const label = document.createElement('div');
-    label.classList.add('feature-label');
-    label.textContent = feature;  // Display the feature
+                const label = document.createElement('div');
+                label.classList.add('feature-label');
+                label.textContent = feature;  // Display the feature
 
-    const value = document.createElement('div');
-    value.classList.add('feature-value');
-    featureRow.appendChild(label);
+                const value = document.createElement('div');
+                value.classList.add('feature-value');
+                featureRow.appendChild(label);
 
-    featuresContainer.appendChild(featureRow);
-});
+                featuresContainer.appendChild(featureRow);
+            });
 
-
-            // Show the modal and trigger the animation
             const modal = document.getElementById('paperModal');
             modal.style.display = 'block'; // Ensure it is visible
-            // Delay triggering the animation to ensure DOM updates
             setTimeout(() => {
                 modal.classList.add('show');
             }, 50);
-            // Prevent background scrolling
             document.body.classList.add('modal-open');
         })
         .catch(error => {
@@ -86,7 +76,6 @@ data.features.forEach(feature => {
             alert('Unable to load paper details, please try again later'); // Error message
         });
 }
-
 
 // Close the modal
 function closeModal() {
